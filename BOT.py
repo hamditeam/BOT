@@ -9,7 +9,7 @@ user_data = {}
 CSV_FILE = 'ids_anti-spam.csv'
 ANTI_SPAM_INTERVAL = 20
 # إنشاء البوت باستخدام التوكن
-bot = telebot.TeleBot("6665074705:AAFG9tlclHkhwSW1vpfqFl6TefrujnI1Vys")
+bot = telebot.TeleBot("6380486607:AAHPKftNWswL80j5u_KoQT-t4JvohQJ4k00")
 id=[1911223261]
 										#CHK COMMANDS 
 @bot.message_handler(commands=['start'])
