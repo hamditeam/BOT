@@ -7,13 +7,17 @@ import pytz
 from datetime import datetime
 user_data = {}
 CSV_FILE = 'ids_anti-spam.csv'
-ANTI_SPAM_INTERVAL = 20
+ANTI_SPAM_INTERVAL = 25
 # إنشاء البوت باستخدام التوكن
-bot = telebot.TeleBot("6380486607:AAHPKftNWswL80j5u_KoQT-t4JvohQJ4k00")
-id=[1911223261]
+bot = telebot.TeleBot("6481463767:AAEOItbUS-0NYyhwTNCqDY7HbIMjmPjZNZA")
+allowed_users = [994383066, 1911223261]
+allowed_groups = [-1001847235996]
 										#CHK COMMANDS 
 @bot.message_handler(commands=['start'])
 def start(message):
+    if message.from_user.id not in allowed_users and message.chat.id not in allowed_groups:
+        bot.send_message(message.chat.id, text="البوت مدفوع لكن مجاني في شات مزيكا وجوكر وبس")
+        return
     user_id = str(message.chat.id)
     with open('user_id.txt', 'r') as f:
         existing_ids = f.read().splitlines()
@@ -31,6 +35,9 @@ Send /cmds for see all commands 🔥
     """)
 @bot.message_handler(commands=['cmds'])
 def handle_message(message):
+    if message.from_user.id not in allowed_users and message.chat.id not in allowed_groups:
+        bot.send_message(message.chat.id, text="البوت مدفوع لكن مجاني في شات مزيكا وجوكر وبس")
+        return
     keyboard = types.InlineKeyboardMarkup()
     menu_button = types.InlineKeyboardButton("🔥 COMMANDS 🔥", callback_data="menu")
     # إنشاء لوحة المفاتيح الخاصة بالزر
@@ -41,6 +48,9 @@ def handle_message(message):
 # دالة لمعالجة اختيار المستخدم للزر
 @bot.callback_query_handler(func=lambda call: True)
 def handle_button(call):
+    if message.from_user.id not in allowed_users and message.chat.id not in allowed_groups:
+        bot.send_message(message.chat.id, text="البوت مدفوع لكن مجاني في شات مزيكا وجوكر وبس")
+        return
     if call.data == "menu":
         bot.delete_message(call.message.chat.id, call.message.message_id)
         # إنشاء زر "ss"
@@ -58,10 +68,6 @@ def handle_button(call):
     elif call.data == "ch":
         bot.delete_message(call.message.chat.id, call.message.message_id)
         bot.send_message(call.message.chat.id, "/st >> STRIOE")
-user_data = {}
-CSV_FILE = 'ids_anti-spam.csv'
-ANTI_SPAM_INTERVAL = 25
-
 @bot.message_handler(commands=['chk'])
 def bb(message):
     user_id = message.from_user.id
