@@ -1,12 +1,15 @@
-import telebot,time,requests
+import telebot,time,requests,csv,threading
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from telebot import types
 from BR import ST
 from colorama import Fore
 import pytz
 from datetime import datetime
+user_data = {}
+CSV_FILE = 'ids_anti-spam.csv'
+ANTI_SPAM_INTERVAL = 20
 # إنشاء البوت باستخدام التوكن
-bot = telebot.TeleBot("6380486607:AAHPKftNWswL80j5u_KoQT-t4JvohQJ4k00")
+bot = telebot.TeleBot("6665074705:AAFG9tlclHkhwSW1vpfqFl6TefrujnI1Vys")
 id=[1911223261]
 										#CHK COMMANDS 
 @bot.message_handler(commands=['start'])
@@ -55,9 +58,32 @@ def handle_button(call):
     elif call.data == "ch":
         bot.delete_message(call.message.chat.id, call.message.message_id)
         bot.send_message(call.message.chat.id, "/st >> STRIOE")
+user_data = {}
+CSV_FILE = 'ids_anti-spam.csv'
+ANTI_SPAM_INTERVAL = 25
+
 @bot.message_handler(commands=['chk'])
-def chk(message):
-    text = message.text[4:].replace(' ','')
+def bb(message):
+    user_id = message.from_user.id
+    current_time = time.time()
+    
+    if user_id in user_data:
+        last_command_time = user_data[user_id]
+        time_diff = current_time - last_command_time
+        
+        if time_diff < ANTI_SPAM_INTERVAL:
+            remaining_time = int(ANTI_SPAM_INTERVAL - time_diff)
+            bot.reply_to(message, f"ANTI_SPAM: Try again after {remaining_time} seconds.")
+            return
+
+    with open(CSV_FILE, 'a', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow([user_id, message.from_user.username])
+    
+    user_data[user_id] = current_time
+
+    threading.Timer(ANTI_SPAM_INTERVAL, delete_user_data, args=[user_id]).start()
+    text = message.text.replace('/chk ','')
     if len(text) == 0:
     	bot.reply_to(message, """Invalid format, type it CORRECTLY!
 Format: XXXXXXXXXXXXXXXX|MM|YYYY|CVV.""")
@@ -65,16 +91,16 @@ Format: XXXXXXXXXXXXXXXX|MM|YYYY|CVV.""")
         t = time.time()
         visa = text.split('|')[0]
         bin=visa[:6]
+        print(bin)
         mes = text.split('|')[1]
         ano = text.split('|')[2][-2:]
         cvv = text.split('|')[3]
         card=f"{visa}|{mes}|{ano}|{cvv}"
         bot.reply_to(message, "Checking your card...⌛")
+        r=requests.session()
         url=f'https://lookup.binlist.net/{bin}'
-        try:
-        	req=requests.get(url).json()
-        except:
-        	pass
+        req=requests.get(url).json()
+        #print(req)
         try:
         	inf=req['scheme']
         except:
@@ -103,6 +129,7 @@ Format: XXXXXXXXXXXXXXXX|MM|YYYY|CVV.""")
         	do = req['country']['name']+' '+req['country']['emoji'].upper()
         except:
         					do='UNKOWN'
+        r=requests.session()
         try:
         	last = str(ST(card))
         except Exception as e:
@@ -167,4 +194,12 @@ Format: XXXXXXXXXXXXXXXX|MM|YYYY|CVV.""")
 𝗧𝗼𝗼𝗸 {timer} 𝘀𝗲𝗰𝗼𝗻𝗱𝘀
     	""")
         	print(Fore.YELLOW+card+"->"+Fore.RED+last)
+def delete_user_data(user_id):
+    user_data.pop(user_id, None)
+    with open(CSV_FILE, 'r', newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        rows = [row for row in reader if row[0] != str(user_id)]
+    with open(CSV_FILE, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerows(rows)
 bot.infinity_polling()
