@@ -48,9 +48,6 @@ def handle_message(message):
 # دالة لمعالجة اختيار المستخدم للزر
 @bot.callback_query_handler(func=lambda call: True)
 def handle_button(call):
-    if call.message.from_user.id not in allowed_users and call.message.chat.id not in allowed_groups:
-        bot.send_message(call.message.chat.id, text="البوت مدفوع لكن مجاني في شات مزيكا وجوكر وبس")
-        return
     if call.data == "menu":
         bot.delete_message(call.message.chat.id, call.message.message_id)
         # إنشاء زر "ss"
